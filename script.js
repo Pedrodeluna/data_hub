@@ -87,17 +87,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Ocultar la tarjeta de contraseña
                     passwordCard.style.display = 'none';
 
-                    // Habilitar el chat
-                    sendButton.disabled = false;
+                    // Habilitar solo el input, el botón de enviar comienza deshabilitado
                     messageInput.disabled = false;
-
-                    // Cargar conversación de ejemplo
-                    loadExampleConversation();
-
-                    // Cargar productos de ejemplo
-                    loadExampleProducts();
-
+                    sendButton.disabled = true;
+                    sendButton.classList.add('disabled');
                     resetButton.disabled = false;
+
+                    // Cargar conversación y productos de ejemplo
+                    loadExampleConversation();
+                    loadExampleProducts();
                 }
             })
             .catch(error => {
@@ -187,7 +185,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return response.json();
             })
             .then(data => {
-                // Remover animación de "pensando"
                 removeThinkingAnimation();
 
                 if (data.error && data.error === "Contraseña incorrecta") {
@@ -218,6 +215,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Actualizar recomendaciones
                     updateRecommendations(data.Recomendaciones);
+
+                    // Bloquear el botón después de recibir la respuesta
+                    sendButton.disabled = true;
+                    sendButton.classList.add('disabled');
                 }
             })
             .catch(error => {
@@ -242,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     function updateRecommendations(productos) {
-        recommendationsDiv.innerHTML = ''; // Limpiar recomendaciones anteriores
+        recommendationsDiv.innerHTML = '';
         const maxDescriptionLength = 100;
 
         // Ordenar productos por Similitud de mayor a menor
@@ -286,55 +287,26 @@ document.addEventListener('DOMContentLoaded', function () {
             const removeButton = document.createElement('button');
             removeButton.classList.add('remove-button');
             removeButton.textContent = 'Producto no relacionado';
-            removeButton.addEventListener('click', () => {
+
+            removeButton.addEventListener('click', function () {
+                // Eliminar la tarjeta visualmente
+                productCard.remove();
+
+                // Añadir a vetados solo si no está ya en la lista
                 if (!vetoedProducts.includes(producto.id)) {
                     vetoedProducts.push(producto.id);
                     console.log('Producto vetado:', producto.id);
+                }
 
-                    // Eliminar la tarjeta actual
-                    productCard.remove();
-
-                    // Si hay productos en espera, mostrar el siguiente
-                    if (productosEnEspera.length > 0) {
-                        const siguienteProducto = productosEnEspera.shift();
-                        mostrarProducto(siguienteProducto);
-                    } else if (document.querySelectorAll('.product-card').length === 0) {
-                        // Si no quedan productos por mostrar, hacer nueva petición
-                        const messageArrayWithoutLast = [...conversationHistory];
-                        messageArrayWithoutLast.pop();
-
-                        showThinkingAnimation();
-
-                        fetch('https://escalonada-1030919964783.europe-west1.run.app/consulta', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                message: messageArrayWithoutLast,
-                                veto: vetoedProducts,
-                                password: password,
-                                modo: selectedMode
-                            })
-                        })
-                            .then(response => {
-                                if (!response.ok) throw new Error('Error en la respuesta del servidor');
-                                return response.json();
-                            })
-                            .then(data => {
-                                removeThinkingAnimation();
-                                if (data.error && data.error === "Contraseña incorrecta") {
-                                    handlePasswordError();
-                                } else {
-                                    updateRecommendations(data.Recomendaciones);
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                removeThinkingAnimation();
-                                showErrorMessage();
-                            });
-                    }
+                // Si hay productos en espera, mostrar el siguiente
+                if (productosEnEspera.length > 0) {
+                    const siguienteProducto = productosEnEspera.shift();
+                    mostrarProducto(siguienteProducto);
+                } else if (document.querySelectorAll('.product-card').length === 0) {
+                    // Solo si no quedan productos mostrados, hacer nueva petición
+                    const messageArrayWithoutLast = [...conversationHistory];
+                    messageArrayWithoutLast.pop();
+                    requestNewProducts();
                 }
             });
 
@@ -343,12 +315,12 @@ document.addEventListener('DOMContentLoaded', function () {
             recommendationsDiv.appendChild(productCard);
         }
 
-        // Mostrar los primeros 3 productos
+        // Mostrar los primeros productos
         productosAMostrar.forEach(producto => mostrarProducto(producto));
     }
 
     function requestNewProducts() {
-        // Remover el último mensaje (respuesta del asistente) del historial
+        // Remover el último mensaje del historial
         const messageArrayWithoutLast = [...conversationHistory];
         messageArrayWithoutLast.pop();
 
@@ -454,5 +426,133 @@ document.addEventListener('DOMContentLoaded', function () {
         // Cargar la conversación y productos de ejemplo
         loadExampleConversation();
         loadExampleProducts();
+    });
+
+    document.getElementById('send-button').addEventListener('click', function (e) {
+        if (!this.classList.contains('active') && !this.disabled) {
+            this.classList.add('active');
+
+            gsap.to(this, {
+                keyframes: [{
+                    '--left-wing-first-x': 50,
+                    '--left-wing-first-y': 100,
+                    '--right-wing-second-x': 50,
+                    '--right-wing-second-y': 100,
+                    duration: .2,
+                    onComplete() {
+                        gsap.set(this, {
+                            '--left-wing-first-y': 0,
+                            '--left-wing-second-x': 40,
+                            '--left-wing-second-y': 100,
+                            '--left-wing-third-x': 0,
+                            '--left-wing-third-y': 100,
+                            '--left-body-third-x': 40,
+                            '--right-wing-first-x': 50,
+                            '--right-wing-first-y': 0,
+                            '--right-wing-second-x': 60,
+                            '--right-wing-second-y': 100,
+                            '--right-wing-third-x': 100,
+                            '--right-wing-third-y': 100,
+                            '--right-body-third-x': 60
+                        })
+                    }
+                }, {
+                    '--left-wing-third-x': 20,
+                    '--left-wing-third-y': 90,
+                    '--left-wing-second-y': 90,
+                    '--left-body-third-y': 90,
+                    '--right-wing-third-x': 80,
+                    '--right-wing-third-y': 90,
+                    '--right-body-third-y': 90,
+                    '--right-wing-second-y': 90,
+                    duration: .2
+                }, {
+                    '--rotate': 50,
+                    '--left-wing-third-y': 95,
+                    '--left-wing-third-x': 27,
+                    '--right-body-third-x': 45,
+                    '--right-wing-second-x': 45,
+                    '--right-wing-third-x': 60,
+                    '--right-wing-third-y': 83,
+                    duration: .25
+                }, {
+                    '--rotate': 55,
+                    '--plane-x': -8,
+                    '--plane-y': 24,
+                    duration: .2
+                }, {
+                    '--rotate': 40,
+                    '--plane-x': 45,
+                    '--plane-y': -180,
+                    '--plane-opacity': 0,
+                    duration: .3,
+                    onComplete: () => {
+                        setTimeout(() => {
+                            this.removeAttribute('style');
+                            gsap.fromTo(this, {
+                                opacity: 0,
+                                y: -8
+                            }, {
+                                opacity: 1,
+                                y: 0,
+                                clearProps: true,
+                                duration: .3,
+                                onComplete: () => {
+                                    this.classList.remove('active');
+                                }
+                            })
+                        }, 2000)
+                    }
+                }]
+            });
+
+            gsap.to(this, {
+                keyframes: [{
+                    '--text-opacity': 0,
+                    '--border-radius': 0,
+                    '--left-wing-background': getComputedStyle(this).getPropertyValue('--primary-darkest'),
+                    '--right-wing-background': getComputedStyle(this).getPropertyValue('--primary-darkest'),
+                    duration: .1
+                }, {
+                    '--left-wing-background': getComputedStyle(this).getPropertyValue('--primary'),
+                    '--right-wing-background': getComputedStyle(this).getPropertyValue('--primary'),
+                    duration: .1
+                }, {
+                    '--left-body-background': getComputedStyle(this).getPropertyValue('--primary-dark'),
+                    '--right-body-background': getComputedStyle(this).getPropertyValue('--primary-darkest'),
+                    duration: .4
+                }, {
+                    '--success-opacity': 1,
+                    '--success-scale': 1,
+                    duration: .25,
+                    delay: .25
+                }]
+            });
+        }
+    });
+
+    // Simplificar el event listener del input
+    messageInput.addEventListener('input', function () {
+        const isEmpty = !this.value || this.value.trim() === '';
+        sendButton.disabled = isEmpty;
+        if (isEmpty) {
+            sendButton.classList.add('disabled');
+        } else {
+            sendButton.classList.remove('disabled');
+        }
+    });
+
+    // Simplificar el event listener del botón de enviar
+    sendButton.addEventListener('click', function (e) {
+        if (!this.disabled) {
+            sendMessage();
+        }
+    });
+
+    // Simplificar el event listener de la tecla Enter
+    messageInput.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter' && !sendButton.disabled) {
+            sendMessage();
+        }
     });
 });
