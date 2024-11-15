@@ -244,61 +244,148 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateRecommendations(productos) {
         recommendationsDiv.innerHTML = ''; // Limpiar recomendaciones anteriores
 
-        const maxDescriptionLength = 100; // Longitud máxima de la descripción
-        // Función para truncar el texto y añadir puntos suspensivos
-
+        const maxDescriptionLength = 100;
 
         // Ordenar productos por Similitud de mayor a menor
         productos.sort((a, b) => b.Similitud - a.Similitud);
 
-        productos.forEach(producto => {
-            if (!vetoedProducts.includes(producto.id)) {
-                const productCard = document.createElement('div');
-                productCard.classList.add('product-card');
-                const img = document.createElement('img');
+        // Filtrar productos no vetados y tomar solo los tres primeros
+        const productosNoVetados = productos
+            .filter(producto => !vetoedProducts.includes(producto.id))
+            .slice(0, 3); // Tomar solo los tres primeros productos
 
-                if (producto.Imagenes && producto.Imagenes.length > 0 && producto.Imagenes != "no image") {
-                    img.src = producto.Imagenes;
-                    img.alt = producto.Nombre;
-                }
-                else {
-                    img.src = 'NoFoto.png';
-                }
+        productosNoVetados.forEach(producto => {
+            const productCard = document.createElement('div');
+            productCard.classList.add('product-card');
+            const img = document.createElement('img');
 
-                productCard.appendChild(img);
-                const productInfo = document.createElement('div');
-                productInfo.classList.add('product-info');
-
-                const title = document.createElement('h3');
-                const similitudPercentage = (producto.Similitud * 100).toFixed(0) + '%';
-                title.textContent = `${producto.Nombre} (${similitudPercentage})`;
-
-                const description = document.createElement('p');
-                const fullDescription = producto.Descripcion || '';
-                description.textContent = truncateText(fullDescription, maxDescriptionLength);
-
-
-                productInfo.appendChild(title);
-                productInfo.appendChild(description);
-
-                const removeButton = document.createElement('button');
-                removeButton.classList.add('remove-button');
-                removeButton.textContent = 'Producto no relacionado';
-                removeButton.addEventListener('click', () => {
-                    productCard.remove();
-                    if (!vetoedProducts.includes(producto.id)) {
-                        vetoedProducts.push(producto.id); // Añadir el ID del producto vetado
-                        // Imprimir el ID vetado en la consola
-                        console.log('Producto vetado:', producto.id);
-                    }
-                });
-
-                productCard.appendChild(productInfo);
-                productCard.appendChild(removeButton);
-
-                recommendationsDiv.appendChild(productCard);
+            if (producto.Imagenes && producto.Imagenes.length > 0 && producto.Imagenes != "no image") {
+                img.src = producto.Imagenes;
+                img.alt = producto.Nombre;
             }
+            else {
+                img.src = 'NoFoto.png';
+            }
+
+            productCard.appendChild(img);
+            const productInfo = document.createElement('div');
+            productInfo.classList.add('product-info');
+
+            const title = document.createElement('h3');
+            const similitudPercentage = (producto.Similitud * 100).toFixed(0) + '%';
+            title.textContent = `${producto.Nombre} (${similitudPercentage})`;
+
+            const description = document.createElement('p');
+            const fullDescription = producto.Descripcion || '';
+            description.textContent = truncateText(fullDescription, maxDescriptionLength);
+
+            productInfo.appendChild(title);
+            productInfo.appendChild(description);
+
+            const removeButton = document.createElement('button');
+            removeButton.classList.add('remove-button');
+            removeButton.textContent = 'Producto no relacionado';
+            removeButton.addEventListener('click', () => {
+                productCard.remove();
+                if (!vetoedProducts.includes(producto.id)) {
+                    vetoedProducts.push(producto.id);
+                    console.log('Producto vetado:', producto.id);
+
+                    // Comprobar si quedan productos después de vetar este
+                    const productosRestantes = productosNoVetados.filter(p => !vetoedProducts.includes(p.id));
+                    if (productosRestantes.length === 0) {
+                        // Si no quedan productos, hacer nueva petición
+                        const messageArrayWithoutLast = [...conversationHistory];
+                        messageArrayWithoutLast.pop(); // Eliminar último elemento
+
+                        // Mostrar animación de "pensando"
+                        showThinkingAnimation();
+
+                        fetch('https://escalonada-1030919964783.europe-west1.run.app/consulta', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                message: messageArrayWithoutLast,
+                                veto: vetoedProducts,
+                                password: password,
+                                modo: selectedMode
+                            })
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Error en la respuesta del servidor');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                removeThinkingAnimation();
+                                if (data.error && data.error === "Contraseña incorrecta") {
+                                    handlePasswordError();
+                                } else {
+                                    updateRecommendations(data.Recomendaciones);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                removeThinkingAnimation();
+                                showErrorMessage();
+                            });
+                    }
+                }
+            });
+
+            productCard.appendChild(productInfo);
+            productCard.appendChild(removeButton);
+
+            recommendationsDiv.appendChild(productCard);
         });
+    }
+
+    function requestNewProducts() {
+        // Remover el último mensaje (respuesta del asistente) del historial
+        const messageArrayWithoutLast = [...conversationHistory];
+        messageArrayWithoutLast.pop();
+
+        // Mostrar animación de "pensando"
+        showThinkingAnimation();
+
+        fetch('https://escalonada-1030919964783.europe-west1.run.app/consulta', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: messageArrayWithoutLast,
+                veto: vetoedProducts,
+                password: password,
+                modo: selectedMode
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
+            .then(data => {
+                removeThinkingAnimation();
+
+                if (data.error && data.error === "Contraseña incorrecta") {
+                    // Manejar error de contraseña...
+                    handlePasswordError();
+                } else {
+                    // Solo actualizar las recomendaciones, no añadir respuesta al chat
+                    updateRecommendations(data.Recomendaciones);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                removeThinkingAnimation();
+                // Mostrar mensaje de error...
+                showErrorMessage();
+            });
     }
 
     function loadExampleConversation() {

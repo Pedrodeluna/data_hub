@@ -404,3 +404,33 @@ body {
     max-width: calc(100% - 220px);
     /* Ajustado para dar espacio a los dos botones */
 }
+
+/* Añadir estos estilos al final del archivo */
+#new-search-button,
+#continue-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin: 10px;
+    display: inline-block;
+}
+
+#new-search-button {
+    background-color: #12d6ab;
+}
+
+#new-search-button:hover {
+    background-color: #0fb391;
+}
+
+#continue-button {
+    background-color: #ff1d70;
+}
+
+#continue-button:hover {
+    background-color: #e01961;
+}
