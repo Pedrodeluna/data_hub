@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const sendButton = document.getElementById('send-button');
     const messageInput = document.getElementById('message-input');
     const chatWindow = document.getElementById('chat-window');
@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordCard = document.getElementById('password-card');
     const passwordInput = document.getElementById('password-input');
     const passwordButton = document.getElementById('password-button');
+    const resetButton = document.getElementById('reset-button');
 
     let vetoedProducts = []; // Array de IDs de productos vetados
     let password = ''; // Variable para almacenar la contraseña
@@ -18,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     messageInput.disabled = true;
 
     passwordButton.addEventListener('click', enterPassword);
-    passwordInput.addEventListener('keypress', function(event) {
+    passwordInput.addEventListener('keypress', function (event) {
         if (event.key === 'Enter') {
             enterPassword();
         }
@@ -64,47 +65,49 @@ document.addEventListener('DOMContentLoaded', function() {
                 password: password
             })
         })
-        .then(response => {
-            if (!response.ok) {
-                // La respuesta no es OK, puede ser un error de red o de servidor
-                throw new Error('Error en la respuesta del servidor');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.error && data.error === "Contraseña incorrecta") {
-                // Contraseña incorrecta
-                alert('Contraseña incorrecta. Por favor, inténtalo de nuevo.');
-                // Limpiar el campo de contraseña
-                passwordInput.value = '';
-                // Volver a mostrar la tarjeta de contraseña si estaba oculta
-                passwordCard.style.display = 'flex';
-            } else {
-                // Contraseña correcta, iniciar el chat
-                console.log('Inicialización exitosa:', data);
+            .then(response => {
+                if (!response.ok) {
+                    // La respuesta no es OK, puede ser un error de red o de servidor
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error && data.error === "Contraseña incorrecta") {
+                    // Contraseña incorrecta
+                    alert('Contraseña incorrecta. Por favor, inténtalo de nuevo.');
+                    // Limpiar el campo de contraseña
+                    passwordInput.value = '';
+                    // Volver a mostrar la tarjeta de contraseña si estaba oculta
+                    passwordCard.style.display = 'flex';
+                } else {
+                    // Contraseña correcta, iniciar el chat
+                    console.log('Inicialización exitosa:', data);
 
-                // Ocultar la tarjeta de contraseña
-                passwordCard.style.display = 'none';
+                    // Ocultar la tarjeta de contraseña
+                    passwordCard.style.display = 'none';
 
-                // Habilitar el chat
-                sendButton.disabled = false;
-                messageInput.disabled = false;
+                    // Habilitar el chat
+                    sendButton.disabled = false;
+                    messageInput.disabled = false;
 
-                // Cargar conversación de ejemplo
-                loadExampleConversation();
+                    // Cargar conversación de ejemplo
+                    loadExampleConversation();
 
-                // Cargar productos de ejemplo
-                loadExampleProducts();
-            }
-        })
-        .catch(error => {
-            console.error('Error en la inicialización:', error);
-            alert('Error al conectarse con el servidor. Por favor, inténtalo de nuevo más tarde.');
-        });
+                    // Cargar productos de ejemplo
+                    loadExampleProducts();
+
+                    resetButton.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error en la inicialización:', error);
+                alert('Error al conectarse con el servidor. Por favor, inténtalo de nuevo más tarde.');
+            });
     }
 
     sendButton.addEventListener('click', sendMessage);
-    messageInput.addEventListener('keypress', function(event) {
+    messageInput.addEventListener('keypress', function (event) {
         if (event.key === 'Enter') {
             sendMessage();
         }
@@ -176,57 +179,58 @@ document.addEventListener('DOMContentLoaded', function() {
                 modo: selectedMode // Usar el modo seleccionado
             })
         })
-        .then(response => {
-            if (!response.ok) {
-                // La respuesta no es OK, puede ser un error de red o de servidor
-                throw new Error('Error en la respuesta del servidor');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Remover animación de "pensando"
-            removeThinkingAnimation();
+            .then(response => {
+                if (!response.ok) {
+                    // La respuesta no es OK, puede ser un error de red o de servidor
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Remover animación de "pensando"
+                removeThinkingAnimation();
 
-            if (data.error && data.error === "Contraseña incorrecta") {
-                // Contraseña incorrecta durante la sesión
-                alert('Contraseña incorrecta. Por favor, vuelve a iniciar sesión.');
-                // Deshabilitar el chat
-                sendButton.disabled = true;
-                messageInput.disabled = true;
-                // Mostrar la tarjeta de contraseña
-                passwordCard.style.display = 'flex';
-                // Limpiar el historial de conversación
-                conversationHistory = [];
-                // Limpiar el chat
-                chatWindow.innerHTML = '';
-                // Limpiar las recomendaciones
-                recommendationsDiv.innerHTML = '';
-            } else {
-                // Mostrar respuesta del asistente
-                const assistantMessage = document.createElement('div');
-                assistantMessage.classList.add('message', 'assistant');
-                assistantMessage.innerHTML = `<span class="role">Asistente</span><p>${data.Respuesta}</p>`;
-                chatWindow.appendChild(assistantMessage);
+                if (data.error && data.error === "Contraseña incorrecta") {
+                    // Contraseña incorrecta durante la sesión
+                    alert('Contraseña incorrecta. Por favor, vuelve a iniciar sesión.');
+                    // Deshabilitar el chat
+                    sendButton.disabled = true;
+                    messageInput.disabled = true;
+                    // Mostrar la tarjeta de contraseña
+                    passwordCard.style.display = 'flex';
+                    // Limpiar el historial de conversación
+                    conversationHistory = [];
+                    // Limpiar el chat
+                    chatWindow.innerHTML = '';
+                    // Limpiar las recomendaciones
+                    recommendationsDiv.innerHTML = '';
+                    resetButton.disabled = true;
+                } else {
+                    // Mostrar respuesta del asistente
+                    const assistantMessage = document.createElement('div');
+                    assistantMessage.classList.add('message', 'assistant');
+                    assistantMessage.innerHTML = `<span class="role">Asistente</span><p>${data.Respuesta}</p>`;
+                    chatWindow.appendChild(assistantMessage);
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+
+                    // Añadir la respuesta al historial de conversación como string
+                    conversationHistory.push(data.Respuesta);
+
+                    // Actualizar recomendaciones
+                    updateRecommendations(data.Recomendaciones);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                removeThinkingAnimation();
+
+                // Mostrar mensaje de error en el chat
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('message', 'assistant');
+                errorMessage.innerHTML = `<span class="role">Asistente</span><p>Ocurrió un error al obtener la respuesta. Por favor, inténtalo de nuevo.</p>`;
+                chatWindow.appendChild(errorMessage);
                 chatWindow.scrollTop = chatWindow.scrollHeight;
-
-                // Añadir la respuesta al historial de conversación como string
-                conversationHistory.push(data.Respuesta);
-
-                // Actualizar recomendaciones
-                updateRecommendations(data.Recomendaciones);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            removeThinkingAnimation();
-
-            // Mostrar mensaje de error en el chat
-            const errorMessage = document.createElement('div');
-            errorMessage.classList.add('message', 'assistant');
-            errorMessage.innerHTML = `<span class="role">Asistente</span><p>Ocurrió un error al obtener la respuesta. Por favor, inténtalo de nuevo.</p>`;
-            chatWindow.appendChild(errorMessage);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        });
+            });
     }
 
 
@@ -241,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
         recommendationsDiv.innerHTML = ''; // Limpiar recomendaciones anteriores
 
         const maxDescriptionLength = 100; // Longitud máxima de la descripción
-    // Función para truncar el texto y añadir puntos suspensivos
+        // Función para truncar el texto y añadir puntos suspensivos
 
 
         // Ordenar productos por Similitud de mayor a menor
@@ -252,12 +256,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const productCard = document.createElement('div');
                 productCard.classList.add('product-card');
                 const img = document.createElement('img');
-           
-                if (producto.Imagenes && producto.Imagenes.length > 0 && producto.Imagenes!="no image") {
+
+                if (producto.Imagenes && producto.Imagenes.length > 0 && producto.Imagenes != "no image") {
                     img.src = producto.Imagenes;
                     img.alt = producto.Nombre;
-                } 
-                else{
+                }
+                else {
                     img.src = 'NoFoto.png';
                 }
 
@@ -273,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const fullDescription = producto.Descripcion || '';
                 description.textContent = truncateText(fullDescription, maxDescriptionLength);
 
-            
+
                 productInfo.appendChild(title);
                 productInfo.appendChild(description);
 
@@ -344,4 +348,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
         updateRecommendations(exampleProducts);
     }
+
+    resetButton.addEventListener('click', function () {
+        // Limpiar el chat
+        chatWindow.innerHTML = '';
+        // Limpiar las recomendaciones
+        recommendationsDiv.innerHTML = '';
+        // Reiniciar el historial de conversación
+        conversationHistory = [];
+        // Reiniciar los productos vetados
+        vetoedProducts = [];
+        // Reiniciar la bandera de primera interacción
+        isFirstRealInteraction = true;
+        // Cargar la conversación y productos de ejemplo
+        loadExampleConversation();
+        loadExampleProducts();
+    });
 });
