@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Asistente para Farmacéuticos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="./COFARES-LOGO.png" alt="Logo COFARES" class="logo">
+            <h1>Asistente para Farmacéuticos</h1>
+        </div>
+    </header>
+
+    <!-- Grupo de Botones para Seleccionar Modo -->
+    <div id="mode-selection">
+        <button class="mode-button" data-mode="sorolla">Sorolla</button>
+        <button class="mode-button active" data-mode="cervantes">Cervantes</button>
+        <button class="mode-button" data-mode="auto">Auto</button>
+    </div>
+
+    <div id="container">
+        <div id="chat">
+            <div id="chat-window">
+                <!-- Mensajes aparecerán aquí -->
+            </div>
+            <div id="chat-input">
+                <input type="text" id="message-input" placeholder="Escribe tu mensaje aquí..." disabled />
+                <button id="send-button" disabled>Enviar</button>
+            </div>
+        </div>
+        <div id="recommendations">
+            <!-- Recomendaciones aparecerán aquí -->
+        </div>
+    </div>
+
+    <!-- Tarjeta de contraseña -->
+    <div id="password-card">
+        <div class="card-content">
+            <h2>Ingrese su contraseña</h2>
+            <input type="password" id="password-input" placeholder="Contraseña" />
+            <button id="password-button">Ingresar</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 Asistente para Farmacéuticos</p>
+            <div class="footer-logos">
+                <img style="width: 100px;" src="./Logo-Google-Cloud.png" alt="Google Cloud Logo">
+                <img style="width: 90px;"src="./sngular.png" alt="Sngular Logo">
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

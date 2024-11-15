@@ -1,0 +1,348 @@
+/* Estilos generales */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #FFFFFF;
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+}
+
+footer {
+    background-color: #183658;
+    padding: 10px;
+    text-align: center;
+    color: #FFFFFF;
+}
+
+#container {
+    flex: 1;
+    display: flex;
+    overflow: hidden; /* Evitar scroll innecesario */
+}
+
+/* Estilos del chat */
+#chat {
+    width: 50%;
+    border-right: 1px solid #FFFFFF;
+    display: flex;
+    flex-direction: column;
+}
+
+#chat-window {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+#chat-input {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #FFFFFF;
+}
+
+#message-input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #183658;
+    color: #FFFFFF;
+}
+
+#message-input::placeholder {
+    color: #aaa;
+}
+
+#send-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-left: 10px;
+    background-color: #ff1d70;
+    border: none;
+    border-radius: 5px;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#send-button:hover {
+    background-color: #12d6ab;
+}
+
+/* Estilos de los mensajes */
+.message {
+    margin-bottom: 15px;
+    max-width: 70%;
+    padding: 10px;
+    border-radius: 10px;
+    position: relative;
+    animation: fadeIn 0.5s;
+}
+
+.pharmacist {
+    background-color: #12d6ab;
+    align-self: flex-end;
+}
+
+.assistant {
+    background-color: #ff1d70;
+    align-self: flex-start;
+}
+
+.message p {
+    margin: 0;
+    color: #FFFFFF;
+}
+
+/* Estilos para los títulos de rol */
+.message .role {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #FFFFFF;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilos de las recomendaciones */
+#recommendations {
+    width: 50%;
+    overflow-y: auto;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.product-card {
+    display: flex;
+    align-items: center;
+    border: 1px solid #444;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    background-color: #183658;
+    transition: background-color 0.3s;
+    color: #FFFFFF; /* Texto en blanco */
+}
+
+.product-card:hover {
+    background-color: #3d3d3d;
+}
+
+.product-card img {
+    width: 60px;
+    height: 60px;
+    margin-right: 10px;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+.product-info {
+    flex: 1;
+}
+
+.product-info h3 {
+    margin: 0 0 5px 0;
+    color: #FFFFFF;
+}
+
+.product-info p {
+    margin: 0;
+    color: #ccc;
+}
+
+.remove-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.remove-button:hover {
+    background-color: #a71d2a;
+}
+
+/* Barra de scroll personalizada */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #333;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #555;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+/* Estilos para la animación de "pensando" */
+.thinking {
+    display: flex;
+    align-items: center;
+}
+
+.thinking::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 10px;
+    border-radius: 50%;
+    background-color: #FFFFFF;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+}
+
+/* Estilos para la tarjeta de contraseña */
+#password-card {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(38, 38, 38, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Asegura que esté sobre otros elementos */
+}
+
+.card-content {
+    background-color: #333;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.card-content h2 {
+    margin-bottom: 20px;
+    color: #FFFFFF;
+}
+
+#password-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #222;
+    color: #FFFFFF;
+}
+
+#password-input::placeholder {
+    color: #aaa;
+}
+
+#password-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#password-button:hover {
+    background-color: #218838;
+}
+
+header {
+   background-color: #183658;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between; /* Ajustar espacio entre elementos */
+    align-items: center;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+}
+
+.header-content .logo {
+    height: 80px;
+    width: auto;
+    margin-right: 15px;
+}
+
+.header-content h1 {
+    margin: 0;
+    color: #FFFFFF;
+}
+
+/* Estilos para los botones de modo */
+#mode-selection {
+    display: flex;
+    justify-content: center;
+    margin: 5px 0;
+}
+
+.mode-button {
+    padding: 10px 20px;
+    margin: 0 5px;
+    background-color: #183658;
+    border: none;
+    border-radius: 5px;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.mode-button.active, .mode-button:hover {
+    background-color: #12d6ab;
+}
+
+/* Estilos para el footer */
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-content p {
+    margin: 0;
+}
+
+.footer-logos img {
+    height: 40px;
+    margin-left: 10px;
+}
+
+.footer-logos {
+    display: flex;
+    align-items: center;
+}
+
+/* Ajustes para que todo encaje en la pantalla */
+body {
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+#chat-window, #recommendations {
+    overflow-y: auto;
+}
+
