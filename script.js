@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let vetoedProducts = []; // Array de IDs de productos vetados
     let password = ''; // Variable para almacenar la contraseña
-    let conversationHistory = []; // Array para mantener el historial de la conversación
-    let selectedMode = 'cervantes'; // Modo por defecto
+    let conversationHistory = []; // Array para mantener el historial de la conversación como strings
+    let selectedMode = 'auto'; // Modo por defecto
     let isFirstRealInteraction = true; // Variable para rastrear la primera interacción real
 
     // Deshabilitar el chat hasta que se ingrese la contraseña
@@ -54,13 +54,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function initializeConversation() {
-        fetch('https://sorolla-definitivo-1030919964783.europe-west1.run.app/consulta', {
+        fetch('https://escalonada-1030919964783.europe-west1.run.app/consulta', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                message: "",
+                message: [],
                 password: password
             })
         })
@@ -128,8 +128,8 @@ document.addEventListener('DOMContentLoaded', function() {
             chatWindow.appendChild(pharmacistMessage);
             chatWindow.scrollTop = chatWindow.scrollHeight;
 
-            // Añadir el mensaje al historial de conversación
-            conversationHistory.push({ role: 'user', content: messageText });
+            // Añadir el mensaje al historial de conversación como string
+            conversationHistory.push(messageText);
 
             // Limpiar el input
             messageInput.value = '';
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function showThinkingAnimation() {
         const thinkingMessage = document.createElement('div');
         thinkingMessage.classList.add('message', 'assistant', 'thinking');
-        thinkingMessage.innerHTML = `<span class="role">Asistente</span><p>Pensando...</p>`;
+        thinkingMessage.innerHTML = `<p>Pensando...</p>`;
         chatWindow.appendChild(thinkingMessage);
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
@@ -155,20 +155,22 @@ document.addEventListener('DOMContentLoaded', function() {
         thinkingMessages.forEach(msg => msg.remove());
     }
 
-    function buildMessageFromHistory() {
-        return conversationHistory.map(entry => entry.content).join('\n');
-    }
-
     function getAssistantResponse() {
-        const fullMessage = buildMessageFromHistory();
-
-        fetch('https://sorolla-definitivo-1030919964783.europe-west1.run.app/consulta', {
+        // Utilizar conversationHistory directamente como arreglo de strings
+        const messageArray = conversationHistory;
+        console.log(JSON.stringify({
+            message: messageArray,
+            veto: vetoedProducts,
+            password: password,
+            modo: selectedMode // Usar el modo seleccionado
+        }));
+        fetch('https://escalonada-1030919964783.europe-west1.run.app/consulta', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                message: fullMessage,
+                message: messageArray,
                 veto: vetoedProducts,
                 password: password,
                 modo: selectedMode // Usar el modo seleccionado
@@ -207,8 +209,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 chatWindow.appendChild(assistantMessage);
                 chatWindow.scrollTop = chatWindow.scrollHeight;
 
-                // Añadir la respuesta al historial de conversación
-                conversationHistory.push({ role: 'assistant', content: data.Respuesta });
+                // Añadir la respuesta al historial de conversación como string
+                conversationHistory.push(data.Respuesta);
 
                 // Actualizar recomendaciones
                 updateRecommendations(data.Recomendaciones);
@@ -227,21 +229,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function extractImageFilename(imageString) {
-        // imageString es algo como "['204091.jpg']"
-        // Remover corchetes y comillas simples
-        let cleanedString = imageString.replace(/[\[\]']/g, '');
-        // Separar por comas en caso de múltiples imágenes
-        let filenames = cleanedString.split(',');
 
-        // Retornar el primer nombre de archivo
-        return filenames[0].trim();
+    function truncateText(text, maxLength) {
+        if (text.length > maxLength) {
+            return text.substring(0, maxLength - 3) + '...';
+        } else {
+            return text;
+        }
     }
-
     function updateRecommendations(productos) {
         recommendationsDiv.innerHTML = ''; // Limpiar recomendaciones anteriores
 
-        const baseImageUrl = ''; // Ajusta esta ruta según la ubicación de tus imágenes
+        const maxDescriptionLength = 100; // Longitud máxima de la descripción
+    // Función para truncar el texto y añadir puntos suspensivos
+
 
         // Ordenar productos por Similitud de mayor a menor
         productos.sort((a, b) => b.Similitud - a.Similitud);
@@ -250,20 +251,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!vetoedProducts.includes(producto.id)) {
                 const productCard = document.createElement('div');
                 productCard.classList.add('product-card');
-
                 const img = document.createElement('img');
-                let imageFilename = '';
-
-                if (producto.Imagenes && producto.Imagenes.length > 0) {
-                    imageFilename = extractImageFilename(producto.Imagenes[0]);
-                    console.log(imageFilename);
-                    img.src = baseImageUrl + imageFilename;
-                } else {
-                    img.src = 'NoFoto.png'; // Imagen por defecto
+           
+                if (producto.Imagenes && producto.Imagenes.length > 0 && producto.Imagenes!="no image") {
+                    img.src = producto.Imagenes;
+                    img.alt = producto.Nombre;
+                } 
+                else{
+                    img.src = 'NoFoto.png';
                 }
 
-                img.alt = producto.Nombre;
-
+                productCard.appendChild(img);
                 const productInfo = document.createElement('div');
                 productInfo.classList.add('product-info');
 
@@ -272,8 +270,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 title.textContent = `${producto.Nombre} (${similitudPercentage})`;
 
                 const description = document.createElement('p');
-                description.textContent = producto.Descripcion || '';
+                const fullDescription = producto.Descripcion || '';
+                description.textContent = truncateText(fullDescription, maxDescriptionLength);
 
+            
                 productInfo.appendChild(title);
                 productInfo.appendChild(description);
 
@@ -289,7 +289,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
 
-                productCard.appendChild(img);
                 productCard.appendChild(productInfo);
                 productCard.appendChild(removeButton);
 
@@ -311,9 +310,9 @@ document.addEventListener('DOMContentLoaded', function() {
         assistantMessage.innerHTML = `<span class="role">Asistente</span><p>Claro, puedo recomendarle algunos productos.</p>`;
         chatWindow.appendChild(assistantMessage);
 
-        // Añadir mensajes al historial de conversación
-        conversationHistory.push({ role: 'user', content: 'Hola, necesito ayuda con un resfriado.' });
-        conversationHistory.push({ role: 'assistant', content: 'Claro, puedo recomendarle algunos productos.' });
+        // Añadir mensajes al historial de conversación como strings
+        conversationHistory.push('Hola, necesito ayuda con un resfriado.');
+        conversationHistory.push('Claro, puedo recomendarle algunos productos.');
 
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
