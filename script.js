@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function initializeConversation() {
-        fetch('https://sorolla4-1030919964783.europe-west1.run.app/consulta', {
+        fetch('https://escalonada-1030919964783.europe-west1.run.app/consulta', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getAssistantResponse() {
         const fullMessage = buildMessageFromHistory();
 
-        fetch('https://sorolla4-1030919964783.europe-west1.run.app/consulta', {
+        fetch('https://escalonada-1030919964783.europe-west1.run.app/consulta', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
