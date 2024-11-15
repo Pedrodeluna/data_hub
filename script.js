@@ -243,18 +243,20 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     function updateRecommendations(productos) {
         recommendationsDiv.innerHTML = ''; // Limpiar recomendaciones anteriores
-
         const maxDescriptionLength = 100;
 
         // Ordenar productos por Similitud de mayor a menor
         productos.sort((a, b) => b.Similitud - a.Similitud);
 
-        // Filtrar productos no vetados y tomar solo los tres primeros
-        const productosNoVetados = productos
-            .filter(producto => !vetoedProducts.includes(producto.id))
-            .slice(0, 3); // Tomar solo los tres primeros productos
+        // Filtrar todos los productos no vetados
+        const todosProductosNoVetados = productos.filter(producto => !vetoedProducts.includes(producto.id));
 
-        productosNoVetados.forEach(producto => {
+        // Tomar los primeros 3 para mostrar
+        let productosAMostrar = todosProductosNoVetados.slice(0, 3);
+        // Guardar el resto en una cola de espera
+        let productosEnEspera = todosProductosNoVetados.slice(3);
+
+        function mostrarProducto(producto) {
             const productCard = document.createElement('div');
             productCard.classList.add('product-card');
             const img = document.createElement('img');
@@ -262,8 +264,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (producto.Imagenes && producto.Imagenes.length > 0 && producto.Imagenes != "no image") {
                 img.src = producto.Imagenes;
                 img.alt = producto.Nombre;
-            }
-            else {
+            } else {
                 img.src = 'NoFoto.png';
             }
 
@@ -286,19 +287,22 @@ document.addEventListener('DOMContentLoaded', function () {
             removeButton.classList.add('remove-button');
             removeButton.textContent = 'Producto no relacionado';
             removeButton.addEventListener('click', () => {
-                productCard.remove();
                 if (!vetoedProducts.includes(producto.id)) {
                     vetoedProducts.push(producto.id);
                     console.log('Producto vetado:', producto.id);
 
-                    // Comprobar si quedan productos después de vetar este
-                    const productosRestantes = productosNoVetados.filter(p => !vetoedProducts.includes(p.id));
-                    if (productosRestantes.length === 0) {
-                        // Si no quedan productos, hacer nueva petición
-                        const messageArrayWithoutLast = [...conversationHistory];
-                        messageArrayWithoutLast.pop(); // Eliminar último elemento
+                    // Eliminar la tarjeta actual
+                    productCard.remove();
 
-                        // Mostrar animación de "pensando"
+                    // Si hay productos en espera, mostrar el siguiente
+                    if (productosEnEspera.length > 0) {
+                        const siguienteProducto = productosEnEspera.shift();
+                        mostrarProducto(siguienteProducto);
+                    } else if (document.querySelectorAll('.product-card').length === 0) {
+                        // Si no quedan productos por mostrar, hacer nueva petición
+                        const messageArrayWithoutLast = [...conversationHistory];
+                        messageArrayWithoutLast.pop();
+
                         showThinkingAnimation();
 
                         fetch('https://escalonada-1030919964783.europe-west1.run.app/consulta', {
@@ -314,9 +318,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             })
                         })
                             .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Error en la respuesta del servidor');
-                                }
+                                if (!response.ok) throw new Error('Error en la respuesta del servidor');
                                 return response.json();
                             })
                             .then(data => {
@@ -338,9 +340,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             productCard.appendChild(productInfo);
             productCard.appendChild(removeButton);
-
             recommendationsDiv.appendChild(productCard);
-        });
+        }
+
+        // Mostrar los primeros 3 productos
+        productosAMostrar.forEach(producto => mostrarProducto(producto));
     }
 
     function requestNewProducts() {
