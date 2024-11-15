@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     function updateRecommendations(productos) {
-        recommendationsDiv.innerHTML = ''; // Limpiar recomendaciones anteriores
+        recommendationsDiv.innerHTML = '';
         const maxDescriptionLength = 100;
 
         // Ordenar productos por Similitud de mayor a menor
@@ -287,55 +287,26 @@ document.addEventListener('DOMContentLoaded', function () {
             const removeButton = document.createElement('button');
             removeButton.classList.add('remove-button');
             removeButton.textContent = 'Producto no relacionado';
-            removeButton.addEventListener('click', () => {
+
+            removeButton.addEventListener('click', function () {
+                // Eliminar la tarjeta visualmente
+                productCard.remove();
+
+                // Añadir a vetados solo si no está ya en la lista
                 if (!vetoedProducts.includes(producto.id)) {
                     vetoedProducts.push(producto.id);
                     console.log('Producto vetado:', producto.id);
+                }
 
-                    // Eliminar la tarjeta actual
-                    productCard.remove();
-
-                    // Si hay productos en espera, mostrar el siguiente
-                    if (productosEnEspera.length > 0) {
-                        const siguienteProducto = productosEnEspera.shift();
-                        mostrarProducto(siguienteProducto);
-                    } else if (document.querySelectorAll('.product-card').length === 0) {
-                        // Si no quedan productos por mostrar, hacer nueva petición
-                        const messageArrayWithoutLast = [...conversationHistory];
-                        messageArrayWithoutLast.pop();
-
-                        showThinkingAnimation();
-
-                        fetch('https://escalonada-1030919964783.europe-west1.run.app/consulta', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                message: messageArrayWithoutLast,
-                                veto: vetoedProducts,
-                                password: password,
-                                modo: selectedMode
-                            })
-                        })
-                            .then(response => {
-                                if (!response.ok) throw new Error('Error en la respuesta del servidor');
-                                return response.json();
-                            })
-                            .then(data => {
-                                removeThinkingAnimation();
-                                if (data.error && data.error === "Contraseña incorrecta") {
-                                    handlePasswordError();
-                                } else {
-                                    updateRecommendations(data.Recomendaciones);
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                removeThinkingAnimation();
-                                showErrorMessage();
-                            });
-                    }
+                // Si hay productos en espera, mostrar el siguiente
+                if (productosEnEspera.length > 0) {
+                    const siguienteProducto = productosEnEspera.shift();
+                    mostrarProducto(siguienteProducto);
+                } else if (document.querySelectorAll('.product-card').length === 0) {
+                    // Solo si no quedan productos mostrados, hacer nueva petición
+                    const messageArrayWithoutLast = [...conversationHistory];
+                    messageArrayWithoutLast.pop();
+                    requestNewProducts();
                 }
             });
 
@@ -344,12 +315,12 @@ document.addEventListener('DOMContentLoaded', function () {
             recommendationsDiv.appendChild(productCard);
         }
 
-        // Mostrar los primeros 3 productos
+        // Mostrar los primeros productos
         productosAMostrar.forEach(producto => mostrarProducto(producto));
     }
 
     function requestNewProducts() {
-        // Remover el último mensaje (respuesta del asistente) del historial
+        // Remover el último mensaje del historial
         const messageArrayWithoutLast = [...conversationHistory];
         messageArrayWithoutLast.pop();
 
