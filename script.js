@@ -87,17 +87,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Ocultar la tarjeta de contraseña
                     passwordCard.style.display = 'none';
 
-                    // Habilitar el chat
-                    sendButton.disabled = false;
+                    // Habilitar solo el input, el botón de enviar comienza deshabilitado
                     messageInput.disabled = false;
-
-                    // Cargar conversación de ejemplo
-                    loadExampleConversation();
-
-                    // Cargar productos de ejemplo
-                    loadExampleProducts();
-
+                    sendButton.disabled = true;
+                    sendButton.classList.add('disabled');
                     resetButton.disabled = false;
+
+                    // Cargar conversación y productos de ejemplo
+                    loadExampleConversation();
+                    loadExampleProducts();
                 }
             })
             .catch(error => {
@@ -187,7 +185,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return response.json();
             })
             .then(data => {
-                // Remover animación de "pensando"
                 removeThinkingAnimation();
 
                 if (data.error && data.error === "Contraseña incorrecta") {
@@ -218,6 +215,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Actualizar recomendaciones
                     updateRecommendations(data.Recomendaciones);
+
+                    // Bloquear el botón después de recibir la respuesta
+                    sendButton.disabled = true;
+                    sendButton.classList.add('disabled');
                 }
             })
             .catch(error => {
@@ -556,6 +557,31 @@ document.addEventListener('DOMContentLoaded', function () {
                     delay: .25
                 }]
             });
+        }
+    });
+
+    // Simplificar el event listener del input
+    messageInput.addEventListener('input', function () {
+        const isEmpty = !this.value || this.value.trim() === '';
+        sendButton.disabled = isEmpty;
+        if (isEmpty) {
+            sendButton.classList.add('disabled');
+        } else {
+            sendButton.classList.remove('disabled');
+        }
+    });
+
+    // Simplificar el event listener del botón de enviar
+    sendButton.addEventListener('click', function (e) {
+        if (!this.disabled) {
+            sendMessage();
+        }
+    });
+
+    // Simplificar el event listener de la tecla Enter
+    messageInput.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter' && !sendButton.disabled) {
+            sendMessage();
         }
     });
 });

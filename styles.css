@@ -206,6 +206,8 @@ footer {
     position: relative;
     z-index: 4;
     opacity: var(--text-opacity);
+    color: #183658;
+    font-weight: bold;
 }
 
 .button span.success {
@@ -216,7 +218,8 @@ footer {
     top: 8px;
     transform: rotate(calc(var(--rotate) * -1deg)) scale(var(--success-scale)) translateZ(0);
     opacity: var(--success-opacity);
-    color: var(--success);
+    color: #183658;
+    font-weight: bold;
 }
 
 .button:disabled {
@@ -527,9 +530,10 @@ body {
     background-color: #ff1d70;
     border: none;
     border-radius: 5px;
-    color: #FFFFFF;
+    color: #183658;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-weight: bold;
 }
 
 #reset-button:hover {
@@ -576,4 +580,22 @@ body {
 
 #continue-button:hover {
     background-color: #e01961;
+}
+
+/* Añadir estos estilos para el botón deshabilitado */
+.button.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.button.disabled span {
+    opacity: 0.6;
+}
+
+.button.disabled .left:before,
+.button.disabled .left:after,
+.button.disabled .right:before,
+.button.disabled .right:after {
+    opacity: 0.6;
 }
