@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Asistente para Farmacéuticos</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 </head>
 
 <body>
@@ -30,7 +31,12 @@
             </div>
             <div id="chat-input">
                 <input type="text" id="message-input" placeholder="Escribe tu mensaje aquí..." disabled />
-                <button id="send-button" disabled>Enviar</button>
+                <button class="button" id="send-button" disabled>
+                    <span class="default">Enviar</span>
+                    <span class="success">Enviado</span>
+                    <div class="left"></div>
+                    <div class="right"></div>
+                </button>
                 <button id="reset-button" disabled>Reiniciar</button>
             </div>
         </div>
