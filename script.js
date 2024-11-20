@@ -29,60 +29,60 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // Elementos del DOM relacionados con ajustes
-const settingsButton = document.getElementById('settings-button');
-const settingsPopup = document.getElementById('settings-popup');
-const settingsCloseButton = settingsPopup.querySelector('.close-button');
-const topKInput = document.getElementById('top-k-input');
-const passwordInput = document.getElementById('password-input');
-const togglePasswordButton = document.getElementById('toggle-password-button');
+    const settingsButton = document.getElementById('settings-button');
+    const settingsPopup = document.getElementById('settings-popup');
+    const settingsCloseButton = settingsPopup.querySelector('.close-button');
+    const topKInput = document.getElementById('top-k-input');
+    const passwordInput = document.getElementById('password-input');
+    const togglePasswordButton = document.getElementById('toggle-password-button');
 
-// Mostrar el pop-up de ajustes al hacer clic en el botón de ajustes
-settingsButton.addEventListener('click', function() {
-    settingsPopup.style.display = 'block';
-});
+    // Mostrar el pop-up de ajustes al hacer clic en el botón de ajustes
+    settingsButton.addEventListener('click', function () {
+        settingsPopup.style.display = 'block';
+    });
 
-// Cerrar el pop-up de ajustes al hacer clic en la 'X'
-settingsCloseButton.addEventListener('click', function() {
-    settingsPopup.style.display = 'none';
-});
-
-// Cerrar el pop-up de ajustes al hacer clic fuera de él
-window.addEventListener('click', function(event) {
-    if (event.target == settingsPopup) {
+    // Cerrar el pop-up de ajustes al hacer clic en la 'X'
+    settingsCloseButton.addEventListener('click', function () {
         settingsPopup.style.display = 'none';
-    }
-});
+    });
 
-// Actualizar el valor de top_k cuando el usuario lo cambie
-topKInput.addEventListener('change', function() {
-    top_k = parseInt(topKInput.value);
-});
+    // Cerrar el pop-up de ajustes al hacer clic fuera de él
+    window.addEventListener('click', function (event) {
+        if (event.target == settingsPopup) {
+            settingsPopup.style.display = 'none';
+        }
+    });
 
-// Mostrar y ocultar la contraseña al mantener presionado el botón con el icono de ojo
-togglePasswordButton.addEventListener('mousedown', function() {
-    passwordInput.type = 'text';
-    togglePasswordButton.querySelector('.material-icons').textContent = 'visibility_off';
-});
+    // Actualizar el valor de top_k cuando el usuario lo cambie
+    topKInput.addEventListener('change', function () {
+        top_k = parseInt(topKInput.value);
+    });
 
-togglePasswordButton.addEventListener('mouseup', function() {
-    passwordInput.type = 'password';
-    togglePasswordButton.querySelector('.material-icons').textContent = 'visibility';
-});
+    // Mostrar y ocultar la contraseña al mantener presionado el botón con el icono de ojo
+    togglePasswordButton.addEventListener('mousedown', function () {
+        passwordInput.type = 'text';
+        togglePasswordButton.querySelector('.material-icons').textContent = 'visibility_off';
+    });
 
-togglePasswordButton.addEventListener('mouseleave', function() {
-    passwordInput.type = 'password';
-    togglePasswordButton.querySelector('.material-icons').textContent = 'visibility';
-});
+    togglePasswordButton.addEventListener('mouseup', function () {
+        passwordInput.type = 'password';
+        togglePasswordButton.querySelector('.material-icons').textContent = 'visibility';
+    });
 
-// Actualizar la variable de contraseña cuando el usuario la cambie
-passwordInput.addEventListener('input', function() {
-    password = passwordInput.value;
-});
+    togglePasswordButton.addEventListener('mouseleave', function () {
+        passwordInput.type = 'password';
+        togglePasswordButton.querySelector('.material-icons').textContent = 'visibility';
+    });
+
+    // Actualizar la variable de contraseña cuando el usuario la cambie
+    passwordInput.addEventListener('input', function () {
+        password = passwordInput.value;
+    });
 
 
 
 
-        // Array de textos cambiantes
+    // Array de textos cambiantes
     const loadingTexts = [
         "Echando un ojo en el almacén...",
         "Hay muchos productos aquí... dame un segundo",
@@ -132,33 +132,33 @@ passwordInput.addEventListener('input', function() {
                 password: password
             })
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.error && data.error === "Contraseña incorrecta") {
-                alert('Contraseña incorrecta. Por favor, inténtalo de nuevo.');
-            } else {
-                console.log('Inicialización exitosa:', data);
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error && data.error === "Contraseña incorrecta") {
+                    alert('Contraseña incorrecta. Por favor, inténtalo de nuevo.');
+                } else {
+                    console.log('Inicialización exitosa:', data);
 
-                // Habilitar el chat
-                sendButton.disabled = false;
-                messageInput.disabled = false;
-                resetButton.disabled = false;
+                    // Habilitar el chat
+                    sendButton.disabled = false;
+                    messageInput.disabled = false;
+                    resetButton.disabled = false;
 
-                // Cargar conversación y productos de ejemplo
-                loadExampleConversation();
-                loadExampleProducts();
-                loadExampleRelatedProducts();
-            }
-        })
-        .catch(error => {
-            console.error('Error en la inicialización:', error);
-            alert('Error al conectarse con el servidor. Por favor, inténtalo de nuevo más tarde.');
-        });
+                    // Cargar conversación y productos de ejemplo
+                    loadExampleConversation();
+                    loadExampleProducts();
+                    loadExampleRelatedProducts();
+                }
+            })
+            .catch(error => {
+                console.error('Error en la inicialización:', error);
+                alert('Error al conectarse con el servidor. Por favor, inténtalo de nuevo más tarde.');
+            });
     }
 
     function sendMessage() {
@@ -206,83 +206,107 @@ passwordInput.addEventListener('input', function() {
 
     function getAssistantResponse() {
         showLoadingAnimation();
-
-
         const messageArray = conversationHistory;
-        console.log(JSON.stringify({
+        const requestData = {
             message: messageArray,
             veto: vetoedProducts,
             password: password,
             top_k: top_k
-        }));
+        };
 
-        fetch('https://reiterado-1030919964783.europe-west1.run.app/consulta', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message: messageArray,
-                veto: vetoedProducts,
-                password: password,
-                top_k: top_k
+        function makeRequest() {
+            fetch('https://reiterado-1030919964783.europe-west1.run.app/consulta', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
             })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
-            }
-            return response.json();
-        })
-        .then(data => {
-            removeThinkingAnimation();
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    removeThinkingAnimation();
 
-            if (data.error && data.error === "Contraseña incorrecta") {
-                alert('Contraseña incorrecta. Por favor, vuelve a iniciar sesión.');
-                sendButton.disabled = true;
-                messageInput.disabled = true;
-                conversationHistory = [];
-                chatWindow.innerHTML = '';
-                recommendationsDiv.innerHTML = '';
-                resetButton.disabled = true;
-            } else {
-                // Mostrar respuesta del asistente
-                const assistantMessage = document.createElement('div');
-                assistantMessage.classList.add('message', 'assistant');
-                assistantMessage.innerHTML = `<span class="role">Asistente</span><p>${data.Respuesta}</p>`;
-                chatWindow.appendChild(assistantMessage);
-                chatWindow.scrollTop = chatWindow.scrollHeight;
+                    if (data.error && data.error === "Contraseña incorrecta") {
+                        alert('Contraseña incorrecta. Por favor, vuelve a iniciar sesión.');
+                        sendButton.disabled = true;
+                        messageInput.disabled = true;
+                        conversationHistory = [];
+                        chatWindow.innerHTML = '';
+                        recommendationsDiv.innerHTML = '';
+                        resetButton.disabled = true;
+                    } else {
+                        // Mostrar respuesta del asistente
+                        const assistantMessage = document.createElement('div');
+                        assistantMessage.classList.add('message', 'assistant');
+                        assistantMessage.innerHTML = `<span class="role">Asistente</span><p>${data.Respuesta}</p>`;
+                        chatWindow.appendChild(assistantMessage);
+                        chatWindow.scrollTop = chatWindow.scrollHeight;
 
-                conversationHistory.push(data.Respuesta);
+                        conversationHistory.push(data.Respuesta);
 
-                // Actualizar recomendaciones
-                hideLoadingAnimation();
+                        // Actualizar recomendaciones
+                        hideLoadingAnimation();
 
-                updateRecommendations(data.Recomendaciones);
+                        updateRecommendations(data.Recomendaciones);
 
-                // Actualizar productos relacionados si los hay
-                // if (data.RelatedProducts && data.RelatedProducts.length > 0) {
-                //     updateRelatedProducts(data.RelatedProducts);
-                // }
+                        // Actualizar productos relacionados si los hay
+                        // if (data.RelatedProducts && data.RelatedProducts.length > 0) {
+                        //     updateRelatedProducts(data.RelatedProducts);
+                        // }
 
-                // Habilitar el botón de enviar
-                sendButton.disabled = false;
-                sendButton.classList.remove('disabled');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            hideLoadingAnimation();
+                        // Habilitar el botón de enviar
+                        sendButton.disabled = false;
+                        sendButton.classList.remove('disabled');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    hideLoadingAnimation();
+                    removeThinkingAnimation();
 
-            removeThinkingAnimation();
+                    // Crear y mostrar el popup de error
+                    const errorPopup = document.createElement('div');
+                    errorPopup.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background-color: #ff6b6b;
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 5px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    z-index: 1000;
+                    text-align: center;
+                `;
+                    errorPopup.textContent = "El servidor está teniendo problemas. Reintentando en 1 segundo...";
+                    document.body.appendChild(errorPopup);
 
-            // Mostrar mensaje de error en el chat
-            const errorMessage = document.createElement('div');
-            errorMessage.classList.add('message', 'assistant');
-            errorMessage.innerHTML = `<span class="role">Asistente</span><p>Ocurrió un error al obtener la respuesta. Por favor, inténtalo de nuevo.</p>`;
-            chatWindow.appendChild(errorMessage);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        });
+                    // Mostrar mensaje de reintento en el chat
+                    const retryMessage = document.createElement('div');
+                    retryMessage.classList.add('message', 'assistant');
+                    retryMessage.innerHTML = `<span class="role">Asistente</span><p>Error 429, servidor sobrecargado. Volviendo a intentar...</p>`;
+                    chatWindow.appendChild(retryMessage);
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+
+                    // Eliminar el popup después de 2 segundos
+                    setTimeout(() => {
+                        errorPopup.remove();
+                    }, 2000);
+
+                    // Reintentar la petición después de 1 segundo
+                    setTimeout(() => {
+                        makeRequest();
+                    }, 1000);
+                });
+        }
+
+        makeRequest();
     }
 
     function updateRecommendations(productos) {
@@ -358,7 +382,7 @@ passwordInput.addEventListener('input', function() {
 
     function getNewRecommendations() {
         showLoadingAnimation();
-    
+
         const messageArray = conversationHistory;
         console.log(JSON.stringify({
             message: messageArray,
@@ -366,7 +390,7 @@ passwordInput.addEventListener('input', function() {
             password: password,
             top_k: top_k
         }));
-    
+
         fetch('https://reiterado-1030919964783.europe-west1.run.app/consulta', {
             method: 'POST',
             headers: {
@@ -379,41 +403,41 @@ passwordInput.addEventListener('input', function() {
                 top_k: top_k
             })
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
-            }
-            return response.json();
-        })
-        .then(data => {
-            hideLoadingAnimation();
-    
-            if (data.error && data.error === "Contraseña incorrecta") {
-                alert('Contraseña incorrecta. Por favor, vuelve a iniciar sesión.');
-                sendButton.disabled = true;
-                messageInput.disabled = true;
-                conversationHistory = [];
-                chatWindow.innerHTML = '';
-                recommendationsDiv.innerHTML = '';
-                resetButton.disabled = true;
-            } else {
-                // Actualizar recomendaciones
-                updateRecommendations(data.Recomendaciones);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            hideLoadingAnimation();
-    
-            // Mostrar mensaje de error en el chat
-            const errorMessage = document.createElement('div');
-            errorMessage.classList.add('message', 'assistant');
-            errorMessage.innerHTML = `<span class="role">Asistente</span><p>Ocurrió un error al obtener las recomendaciones. Por favor, inténtalo de nuevo.</p>`;
-            chatWindow.appendChild(errorMessage);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
+            .then(data => {
+                hideLoadingAnimation();
+
+                if (data.error && data.error === "Contraseña incorrecta") {
+                    alert('Contraseña incorrecta. Por favor, vuelve a iniciar sesión.');
+                    sendButton.disabled = true;
+                    messageInput.disabled = true;
+                    conversationHistory = [];
+                    chatWindow.innerHTML = '';
+                    recommendationsDiv.innerHTML = '';
+                    resetButton.disabled = true;
+                } else {
+                    // Actualizar recomendaciones
+                    updateRecommendations(data.Recomendaciones);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                hideLoadingAnimation();
+
+                // Mostrar mensaje de error en el chat
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('message', 'assistant');
+                errorMessage.innerHTML = `<span class="role">Asistente</span><p>Ocurrió un error al obtener las recomendaciones. Por favor, inténtalo de nuevo.</p>`;
+                chatWindow.appendChild(errorMessage);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            });
     }
-    
+
 
     function showProductPopup(producto) {
         popupContent.innerHTML = '';
@@ -584,7 +608,7 @@ passwordInput.addEventListener('input', function() {
             toggleIcon.textContent = '▼';
         }
     });
-    
+
     // Inicialmente, la sección está colapsada
     relatedProductsDiv.classList.add('collapsed');
     toggleText.textContent = 'Mostrar';
@@ -593,122 +617,122 @@ passwordInput.addEventListener('input', function() {
     document.querySelectorAll('.button_plane').forEach(button => {
 
         let getVar = variable => getComputedStyle(button).getPropertyValue(variable);
-      
+
         button.addEventListener('click', e => {
-      
-          if(!button.classList.contains('active')) {
-      
-            button.classList.add('active');
-      
-            gsap.to(button, {
-              keyframes: [{
-                '--left-wing-first-x': 50,
-                '--left-wing-first-y': 100,
-                '--right-wing-second-x': 50,
-                '--right-wing-second-y': 100,
-                duration: .2,
-                onComplete() {
-                  gsap.set(button, {
-                    '--left-wing-first-y': 0,
-                    '--left-wing-second-x': 40,
-                    '--left-wing-second-y': 100,
-                    '--left-wing-third-x': 0,
-                    '--left-wing-third-y': 100,
-                    '--left-body-third-x': 40,
-                    '--right-wing-first-x': 50,
-                    '--right-wing-first-y': 0,
-                    '--right-wing-second-x': 60,
-                    '--right-wing-second-y': 100,
-                    '--right-wing-third-x': 100,
-                    '--right-wing-third-y': 100,
-                    '--right-body-third-x': 60
-                  })
-                }
-              }, {
-                '--left-wing-third-x': 20,
-                '--left-wing-third-y': 90,
-                '--left-wing-second-y': 90,
-                '--left-body-third-y': 90,
-                '--right-wing-third-x': 80,
-                '--right-wing-third-y': 90,
-                '--right-body-third-y': 90,
-                '--right-wing-second-y': 90,
-                duration: .2
-              }, {
-                '--rotate': 50,
-                '--left-wing-third-y': 95,
-                '--left-wing-third-x': 27,
-                '--right-body-third-x': 45,
-                '--right-wing-second-x': 45,
-                '--right-wing-third-x': 60,
-                '--right-wing-third-y': 83,
-                duration: .25
-              }, {
-                '--rotate': 60,
-                '--plane-x': -8,
-                '--plane-y': 40,
-                duration: .2
-              }, {
-                '--rotate': 40,
-                '--plane-x': 45,
-                '--plane-y': -300,
-                '--plane-opacity': 0,
-                duration: .375,
-                onComplete() {
-                  setTimeout(() => {
-                    button.removeAttribute('style');
-                    gsap.fromTo(button, {
-                      opacity: 0,
-                      y: -8
+
+            if (!button.classList.contains('active')) {
+
+                button.classList.add('active');
+
+                gsap.to(button, {
+                    keyframes: [{
+                        '--left-wing-first-x': 50,
+                        '--left-wing-first-y': 100,
+                        '--right-wing-second-x': 50,
+                        '--right-wing-second-y': 100,
+                        duration: .2,
+                        onComplete() {
+                            gsap.set(button, {
+                                '--left-wing-first-y': 0,
+                                '--left-wing-second-x': 40,
+                                '--left-wing-second-y': 100,
+                                '--left-wing-third-x': 0,
+                                '--left-wing-third-y': 100,
+                                '--left-body-third-x': 40,
+                                '--right-wing-first-x': 50,
+                                '--right-wing-first-y': 0,
+                                '--right-wing-second-x': 60,
+                                '--right-wing-second-y': 100,
+                                '--right-wing-third-x': 100,
+                                '--right-wing-third-y': 100,
+                                '--right-body-third-x': 60
+                            })
+                        }
                     }, {
-                      opacity: 1,
-                      y: 0,
-                      clearProps: true,
-                      duration: .3,
-                      onComplete() {
-                        button.classList.remove('active');
-                      }
-                    })
-                  }, 1800)
-                }
-              }]
-            })
-      
-            gsap.to(button, {
-              keyframes: [{
-                '--text-opacity': 0,
-                '--border-radius': 0,
-                '--left-wing-background': getVar('--primary-dark'),
-                '--right-wing-background': getVar('--primary-dark'),
-                duration: .11
-              }, {
-                '--left-wing-background': getVar('--primary'),
-                '--right-wing-background': getVar('--primary'),
-                duration: .14
-              }, {
-                '--left-body-background': getVar('--primary-dark'),
-                '--right-body-background': getVar('--primary-darkest'),
-                duration: .25,
-                delay: .1
-              }, {
-                '--trails-stroke': 171,
-                duration: .22,
-                delay: .22
-              }, {
-                '--success-opacity': 1,
-                '--success-x': 0,
-                duration: .2,
-                delay: .15
-              }, {
-                '--success-stroke': 0,
-                duration: .15
-              }]
-            })
-      
-          }
-      
+                        '--left-wing-third-x': 20,
+                        '--left-wing-third-y': 90,
+                        '--left-wing-second-y': 90,
+                        '--left-body-third-y': 90,
+                        '--right-wing-third-x': 80,
+                        '--right-wing-third-y': 90,
+                        '--right-body-third-y': 90,
+                        '--right-wing-second-y': 90,
+                        duration: .2
+                    }, {
+                        '--rotate': 50,
+                        '--left-wing-third-y': 95,
+                        '--left-wing-third-x': 27,
+                        '--right-body-third-x': 45,
+                        '--right-wing-second-x': 45,
+                        '--right-wing-third-x': 60,
+                        '--right-wing-third-y': 83,
+                        duration: .25
+                    }, {
+                        '--rotate': 60,
+                        '--plane-x': -8,
+                        '--plane-y': 40,
+                        duration: .2
+                    }, {
+                        '--rotate': 40,
+                        '--plane-x': 45,
+                        '--plane-y': -300,
+                        '--plane-opacity': 0,
+                        duration: .375,
+                        onComplete() {
+                            setTimeout(() => {
+                                button.removeAttribute('style');
+                                gsap.fromTo(button, {
+                                    opacity: 0,
+                                    y: -8
+                                }, {
+                                    opacity: 1,
+                                    y: 0,
+                                    clearProps: true,
+                                    duration: .3,
+                                    onComplete() {
+                                        button.classList.remove('active');
+                                    }
+                                })
+                            }, 1800)
+                        }
+                    }]
+                })
+
+                gsap.to(button, {
+                    keyframes: [{
+                        '--text-opacity': 0,
+                        '--border-radius': 0,
+                        '--left-wing-background': getVar('--primary-dark'),
+                        '--right-wing-background': getVar('--primary-dark'),
+                        duration: .11
+                    }, {
+                        '--left-wing-background': getVar('--primary'),
+                        '--right-wing-background': getVar('--primary'),
+                        duration: .14
+                    }, {
+                        '--left-body-background': getVar('--primary-dark'),
+                        '--right-body-background': getVar('--primary-darkest'),
+                        duration: .25,
+                        delay: .1
+                    }, {
+                        '--trails-stroke': 171,
+                        duration: .22,
+                        delay: .22
+                    }, {
+                        '--success-opacity': 1,
+                        '--success-x': 0,
+                        duration: .2,
+                        delay: .15
+                    }, {
+                        '--success-stroke': 0,
+                        duration: .15
+                    }]
+                })
+
+            }
+
         })
-      
-      });
-      
+
+    });
+
 });
