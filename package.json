@@ -2,8 +2,6 @@
   "dependencies": {
     "@google-cloud/text-to-speech": "^5.5.0",
     "express": "^4.21.1",
-    "gsap": "^3.12.5",
-    "openai": "^4.68.4",
-    "sass": "^1.81.0"
+    "openai": "^4.68.4"
   }
 }

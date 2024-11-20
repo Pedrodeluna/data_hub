@@ -4,25 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <title>Asistente para Farmacéuticos</title>
+    <!-- Incluye la fuente Roboto -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
+    <!-- Vincula tu archivo CSS actualizado -->
     <link rel="stylesheet" href="styles.css">
+    <!-- Incluye GSAP para la animación del botón -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 </head>
 
 <body>
     <header>
         <div class="header-content">
-            <img src="./COFARES-LOGO.png" alt="Logo COFARES" class="logo">
+            <!-- Botón de ajustes -->
+
+            <img src="./COFARES-LOGO2.png" alt="Logo COFARES" class="logo">
             <h1>Asistente para Farmacéuticos</h1>
+            <button id="settings-button" class="settings-button">
+                <span class="material-icons">settings</span>
+            </button>
         </div>
     </header>
-
-    <!-- Grupo de Botones para Seleccionar Modo -->
-    <div id="mode-selection">
-        <button class="mode-button" data-mode="85">Cervantes 85%</button>
-        <button class="mode-button" data-mode="90">Cervantes 90%</button>
-        <button class="mode-button" data-mode="100">Cervantes 100%</button>
-        <button class="mode-button active" data-mode="auto">Auto</button>
-    </div>
 
     <div id="container">
         <div id="chat">
@@ -30,40 +33,103 @@
                 <!-- Mensajes aparecerán aquí -->
             </div>
             <div id="chat-input">
-                <input type="text" id="message-input" placeholder="Escribe tu mensaje aquí..." disabled />
-                <button class="button" id="send-button" disabled>
+                <input type="text" id="message-input" placeholder="¿Qué producto estás buscando?" disabled />
+                <button class="button_plane" id="send-button">
                     <span class="default">Enviar</span>
-                    <span class="success">Enviado</span>
-                    <div class="left"></div>
-                    <div class="right"></div>
+                    <span class="success">
+                      <svg viewBox="0 0 16 16">
+                        <polyline points="3.75 9 7 12 13 5"></polyline>
+                      </svg>Enviado
+                    </span>
+                    <svg class="trails" viewBox="0 0 33 64">
+                      <path d="M26,4 C28,13.3333333 29,22.6666667 29,32 C29,41.3333333 28,50.6666667 26,60"></path>
+                      <path d="M6,4 C8,13.3333333 9,22.6666667 9,32 C9,41.3333333 8,50.6666667 6,60"></path>
+                    </svg>
+                    <div class="plane">
+                      <div class="left"></div>
+                      <div class="right"></div>
+                    </div>
+                  </button>
+                  
+                  <!-- twitter / dribbble -->
+                  <button id="reset-button" class="reset-button" disabled>
+                    <span class="material-icons">refresh</span>
                 </button>
-                <button id="reset-button" disabled>Reiniciar</button>
             </div>
         </div>
-        <div id="recommendations">
-            <!-- Recomendaciones aparecerán aquí -->
+        <div id="sidebar">
+            <!-- Productos recomendados -->
+            <div class="sidebar-section" id="recommendations-section">
+                <h2>Productos Recomendados</h2>
+                                  <!-- Recomendaciones aparecerán aquí -->
+                <div id="loading-animation">
+                    <img src="animation.gif" alt="Cargando...">
+                    <p id="loading-text"></p>
+                </div>
+                <div id="recommendations">
+  
+                </div>
+            </div>
+            <!-- Productos relacionados -->
+            <div class="sidebar-section" id="related-products-section" >
+                <h2>
+                    Productos Relacionados
+                    <button id="toggle-related-products" class="toggle-button">
+                        <span id="toggle-text">Mostrar</span> <span id="toggle-icon">▼</span>
+                    </button>
+                </h2>
+                <div id="related-products" class="collapsed">
+                    <!-- Productos relacionados aparecerán aquí -->
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Tarjeta de contraseña -->
-    <div id="password-card">
-        <div class="card-content">
-            <h2>Ingrese su contraseña</h2>
-            <input type="password" id="password-input" placeholder="Contraseña" />
-            <button id="password-button">Ingresar</button>
+    <!-- Popup para detalles del producto -->
+    <div id="product-popup" class="popup">
+        <div class="popup-content">
+            <span class="close-button">&times;</span>
+            <div id="popup-details">
+                <!-- Detalles del producto aparecerán aquí -->
+            </div>
         </div>
     </div>
+
+        <!-- Popup para ajustes -->
+    <div id="settings-popup" class="popup">
+        <div class="popup-content">
+            <span class="close-button">&times;</span>
+            <div id="settings-content">
+                <h2>Ajustes</h2>
+                <div class="setting-item">
+                    <label for="top-k-input">Valor de <code>top_k</code>:</label>
+                    <input type="number" id="top-k-input" min="1" max="100" value="20">
+                </div>
+                <div class="setting-item">
+                    <label for="password-input">Contraseña:</label>
+                    <div class="password-container">
+                        <input type="password" id="password-input" value="cofares_everest">
+                        <button id="toggle-password-button" class="toggle-password-button">
+                            <span class="material-icons">visibility</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <footer>
         <div class="footer-content">
             <p>&copy; 2024 Asistente para Farmacéuticos</p>
             <div class="footer-logos">
-                <img style="width: 100px;" src="./Logo-Google-Cloud.png" alt="Google Cloud Logo">
-                <img style="width: 90px;" src="./sngular.png" alt="Sngular Logo">
+                <img style="height: 30px " src="./Logo-Google-Cloud.svg" alt="Google Cloud Logo">
+                <img style=" height: 40px ;" src="./sngular.png" alt="Sngular Logo">
             </div>
         </div>
     </footer>
 
+    <!-- Vincula tu archivo JS -->
     <script src="script.js"></script>
 </body>
 
