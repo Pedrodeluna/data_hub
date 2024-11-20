@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeConversation();
 
     function initializeConversation() {
-        fetch('https://reiterado-1030919964783.europe-west1.run.app/consulta', {
+        fetch('https://reiterado2-1030919964783.europe-west1.run.app/consulta', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         function makeRequest() {
-            fetch('https://reiterado-1030919964783.europe-west1.run.app/consulta', {
+            fetch('https://reiterado2-1030919964783.europe-west1.run.app/consulta', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -251,13 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         // Actualizar recomendaciones
                         hideLoadingAnimation();
-
                         updateRecommendations(data.Recomendaciones);
-
-                        // Actualizar productos relacionados si los hay
-                        // if (data.RelatedProducts && data.RelatedProducts.length > 0) {
-                        //     updateRelatedProducts(data.RelatedProducts);
-                        // }
 
                         // Habilitar el botón de enviar
                         sendButton.disabled = false;
@@ -269,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     hideLoadingAnimation();
                     removeThinkingAnimation();
 
-                    // Crear y mostrar el popup de error
+                    // Crear y mostrar el popup de error con icono
                     const errorPopup = document.createElement('div');
                     errorPopup.style.cssText = `
                     position: fixed;
@@ -283,22 +277,43 @@ document.addEventListener('DOMContentLoaded', function () {
                     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
                     z-index: 1000;
                     text-align: center;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
                 `;
-                    errorPopup.textContent = "El servidor está teniendo problemas. Reintentando en 1 segundo...";
+
+                    // Agregar icono de error
+                    const errorIcon = document.createElement('span');
+                    errorIcon.className = 'material-icons';
+                    errorIcon.textContent = 'error_outline';
+                    errorPopup.appendChild(errorIcon);
+
+                    const errorText = document.createElement('span');
+                    errorText.textContent = "El servidor está teniendo problemas. Reintentando en 1 segundo...";
+                    errorPopup.appendChild(errorText);
+
                     document.body.appendChild(errorPopup);
 
-                    // Mostrar mensaje de reintento en el chat
+                    // Mostrar mensaje de error en el chat con icono
                     const retryMessage = document.createElement('div');
                     retryMessage.classList.add('message', 'assistant');
-                    retryMessage.innerHTML = `<span class="role">Asistente</span><p>Error 429, servidor sobrecargado. Volviendo a intentar...</p>`;
+                    retryMessage.innerHTML = `
+                    <span class="role">Asistente</span>
+                    <p>
+                        <span class="material-icons" style="color: #ff6b6b; vertical-align: middle; margin-right: 5px;">
+                            error_outline
+                        </span>
+                        Error en el servidor. Volviendo a intentar...
+                    </p>`;
                     chatWindow.appendChild(retryMessage);
                     chatWindow.scrollTop = chatWindow.scrollHeight;
 
                     // Eliminar el popup después de 2 segundos
                     setTimeout(() => {
                         errorPopup.remove();
-                    }, 2000);
+                    }, 3000);
 
+                    showLoadingAnimation();
                     // Reintentar la petición después de 1 segundo
                     setTimeout(() => {
                         makeRequest();
@@ -391,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
             top_k: top_k
         }));
 
-        fetch('https://reiterado-1030919964783.europe-west1.run.app/consulta', {
+        fetch('https://reiterado2-1030919964783.europe-west1.run.app/consulta', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
