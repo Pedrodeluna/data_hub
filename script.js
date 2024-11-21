@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeConversation();
 
     function initializeConversation() {
-        fetch('https://reiterado2-1030919964783.europe-west1.run.app/consulta', {
+        fetch('https://reiterado4-1030919964783.europe-west1.run.app/consulta', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         function makeRequest() {
-            fetch('https://reiterado2-1030919964783.europe-west1.run.app/consulta', {
+            fetch('https://reiterado4-1030919964783.europe-west1.run.app/consulta', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', function () {
             top_k: top_k
         }));
 
-        fetch('https://reiterado2-1030919964783.europe-west1.run.app/consulta', {
+        fetch('https://reiterado4-1030919964783.europe-west1.run.app/consulta', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
