@@ -21,7 +21,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let password = 'cofares_everest'; // Reemplaza con tu contraseña real
     let conversationHistory = []; // Array para mantener el historial de la conversación como strings
     let isFirstRealInteraction = true; // Variable para rastrear la primera interacción real
-    let top_k = 20;
+    let defaultTopK = 20; // Valor por defecto de top_k
+    let top_k = defaultTopK;
+    let successfulQueries = 0; // Contador para consultas exitosas
 
     // Deshabilitar el chat hasta que se inicie correctamente
     sendButton.disabled = true;
@@ -55,7 +57,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Actualizar el valor de top_k cuando el usuario lo cambie
     topKInput.addEventListener('change', function () {
-        top_k = parseInt(topKInput.value);
+        // Removemos esta funcionalidad para que no interfiera con el incremento automático
+        // top_k = parseInt(topKInput.value);
     });
 
     // Mostrar y ocultar la contraseña al mantener presionado el botón con el icono de ojo
@@ -204,6 +207,9 @@ document.addEventListener('DOMContentLoaded', function () {
         thinkingMessages.forEach(msg => msg.remove());
     }
 
+    let retryCount = 0;
+    const MAX_RETRIES = 5; // Máximo número de reintentos
+
     function getAssistantResponse() {
         showLoadingAnimation();
         const messageArray = conversationHistory;
@@ -240,6 +246,17 @@ document.addEventListener('DOMContentLoaded', function () {
                         recommendationsDiv.innerHTML = '';
                         resetButton.disabled = true;
                     } else {
+                        // Reiniciar el contador de reintentos cuando hay éxito
+                        retryCount = 0;
+
+                        // Incrementar top_k después de cada consulta exitosa
+                        successfulQueries++;
+                        top_k = defaultTopK + (successfulQueries * 5);
+
+                        // Actualizar el valor en el input de configuración
+                        const topKInput = document.getElementById('top-k-input');
+                        topKInput.value = top_k;
+
                         // Mostrar respuesta del asistente
                         const assistantMessage = document.createElement('div');
                         assistantMessage.classList.add('message', 'assistant');
@@ -263,33 +280,36 @@ document.addEventListener('DOMContentLoaded', function () {
                     hideLoadingAnimation();
                     removeThinkingAnimation();
 
+                    // Calcular el tiempo de espera lineal (1s, 2s, 3s, etc.) con máximo de 5s
+                    const waitTime = Math.min((retryCount + 1) * 1000, 5000); // Máximo 5 segundos
+                    retryCount++;
+
                     // Crear y mostrar el popup de error con icono
                     const errorPopup = document.createElement('div');
                     errorPopup.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background-color: #ff6b6b;
-                    color: white;
-                    padding: 15px 25px;
-                    border-radius: 5px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                    z-index: 1000;
-                    text-align: center;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                `;
+                        position: fixed;
+                        top: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background-color: #ff6b6b;
+                        color: white;
+                        padding: 15px 25px;
+                        border-radius: 5px;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                        z-index: 1000;
+                        text-align: center;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    `;
 
-                    // Agregar icono de error
                     const errorIcon = document.createElement('span');
                     errorIcon.className = 'material-icons';
                     errorIcon.textContent = 'error_outline';
                     errorPopup.appendChild(errorIcon);
 
                     const errorText = document.createElement('span');
-                    errorText.textContent = "El servidor está teniendo problemas. Reintentando en 1 segundo...";
+                    errorText.textContent = `El servidor está teniendo problemas. Reintentando en ${waitTime / 1000} segundos...`;
                     errorPopup.appendChild(errorText);
 
                     document.body.appendChild(errorPopup);
@@ -298,13 +318,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     const retryMessage = document.createElement('div');
                     retryMessage.classList.add('message', 'assistant');
                     retryMessage.innerHTML = `
-                    <span class="role">Asistente</span>
-                    <p>
-                        <span class="material-icons" style="color: #ff6b6b; vertical-align: middle; margin-right: 5px;">
-                            error_outline
-                        </span>
-                        Error en el servidor. Volviendo a intentar...
-                    </p>`;
+                        <span class="role">Asistente</span>
+                        <p>
+                            <span class="material-icons" style="color: #ff6b6b; vertical-align: middle; margin-right: 5px;">
+                                error_outline
+                            </span>
+                            Error en el servidor. Volviendo a intentar en ${waitTime / 1000} segundos...
+                        </p>`;
                     chatWindow.appendChild(retryMessage);
                     chatWindow.scrollTop = chatWindow.scrollHeight;
 
@@ -314,10 +334,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     }, 3000);
 
                     showLoadingAnimation();
-                    // Reintentar la petición después de 1 segundo
+                    // Reintentar la petición después del tiempo calculado
                     setTimeout(() => {
                         makeRequest();
-                    }, 1000);
+                    }, waitTime);
                 });
         }
 
@@ -579,10 +599,18 @@ document.addEventListener('DOMContentLoaded', function () {
     resetButton.addEventListener('click', function () {
         chatWindow.innerHTML = '';
         recommendationsDiv.innerHTML = '';
-        // relatedProductsDiv.innerHTML = '';
         conversationHistory = [];
         vetoedProducts = [];
         isFirstRealInteraction = true;
+
+        // Reiniciar los valores de top_k y el contador de consultas exitosas
+        top_k = defaultTopK;
+        successfulQueries = 0;
+
+        // Actualizar el valor en el input de configuración
+        const topKInput = document.getElementById('top-k-input');
+        topKInput.value = top_k;
+
         loadExampleConversation();
         loadExampleProducts();
         loadExampleRelatedProducts();
