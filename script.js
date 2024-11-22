@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeConversation();
 
     function initializeConversation() {
-        fetch('https://reiterado7-1030919964783.europe-west1.run.app/consulta', {
+        fetch('https://concat-1030919964783.europe-west1.run.app/consulta', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         function makeRequest() {
-            fetch('https://reiterado7-1030919964783.europe-west1.run.app/consulta', {
+            fetch('https://concat-1030919964783.europe-west1.run.app/consulta', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', function () {
             top_k: top_k
         }));
 
-        fetch('https://reiterado7-1030919964783.europe-west1.run.app/consulta', {
+        fetch('https://concat-1030919964783.europe-west1.run.app/consulta', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -485,30 +485,40 @@ document.addEventListener('DOMContentLoaded', function () {
             img.src = 'NoFoto.png';
         }
 
-
         const title = document.createElement('h3');
         title.textContent = producto.Nombre;
 
-        const description = document.createElement('p');
-        description.textContent = truncateText(producto.Descripcion, 200);
-        description.classList.add('popup-description');
+        // Crear un contenedor para los detalles
+        const detailsContainer = document.createElement('div');
+        detailsContainer.classList.add('details-container');
+
+        // Separar la descripción en campos
+        const description = producto.Descripcion;
+
+        const fields = {
+            nombre: description.split('Nombre_largo')[0]?.replace('nombre ', '').trim(),
+            nombreLargo: description.split('Marca propia')[0]?.split('Nombre_largo')[1]?.trim(),
+            esMarcaPropia: producto.EsMarcaPropia ? 'Sí' : 'No',
+            proveedor: description.split('.Nombres matrículas')[0]?.split('Nombre proveedor')[1]?.trim(),
+            informacion: description.split('Instrucciones')[0]?.split('Información')[1]?.trim(),
+            instrucciones: description.split('Composición')[0]?.split('Instrucciones')[1]?.trim(),
+            composicion: description.split('Composición')[1]?.trim()
+        };
+
+        // Crear elementos para cada campo solo si tienen valor
+        for (const [key, value] of Object.entries(fields)) {
+            // Verificar si el valor existe antes de usar endsWith
+            const displayValue = value ? (value.endsWith('.') ? value.slice(0, -1).trim() : value.trim()) : '';
+            if (displayValue) { // Solo agregar si hay un valor válido
+                const sectionElement = document.createElement('p');
+                sectionElement.innerHTML = `<strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${displayValue}`;
+                detailsContainer.appendChild(sectionElement);
+            }
+        }
 
         popupContent.appendChild(img);
         popupContent.appendChild(title);
-        popupContent.appendChild(description);
-
-        if (producto.Descripcion.length > 200) {
-            const readMoreButton = document.createElement('button');
-            readMoreButton.classList.add('read-more-button');
-            readMoreButton.textContent = 'Leer más...';
-
-            readMoreButton.addEventListener('click', function () {
-                description.textContent = producto.Descripcion;
-                readMoreButton.style.display = 'none';
-            });
-
-            popupContent.appendChild(readMoreButton);
-        }
+        popupContent.appendChild(detailsContainer);
 
         productPopup.style.display = 'block';
     }
